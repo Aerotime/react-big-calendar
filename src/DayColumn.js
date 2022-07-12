@@ -1,6 +1,5 @@
+import React, { createRef } from 'react'
 import PropTypes from 'prop-types'
-import React from 'react'
-import { findDOMNode } from 'react-dom'
 import clsx from 'clsx'
 
 import Selection, { getBoundsForNode, isEvent } from './Selection'
@@ -23,6 +22,7 @@ class DayColumn extends React.Component {
     super(...args)
 
     this.slotMetrics = TimeSlotUtils.getSlotMetrics(this.props)
+    this.containerRef = createRef()
   }
 
   componentDidMount() {
@@ -38,15 +38,13 @@ class DayColumn extends React.Component {
     this.clearTimeIndicatorInterval()
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.selectable && !this.props.selectable) this._selectable()
-    if (!nextProps.selectable && this.props.selectable)
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.selectable && this.props.selectable) this._selectable()
+    if (prevProps.selectable && !this.props.selectable)
       this._teardownSelectable()
 
-    this.slotMetrics = this.slotMetrics.update(nextProps)
-  }
+    this.slotMetrics = this.slotMetrics.update(this.props)
 
-  componentDidUpdate(prevProps, prevState) {
     const { getNow, isNow, localizer, date, min, max } = this.props
     const getNowChanged = localizer.neq(prevProps.getNow(), getNow(), 'minutes')
 
@@ -129,6 +127,7 @@ class DayColumn extends React.Component {
 
     return (
       <DayColumnWrapperComponent
+        ref={this.containerRef}
         date={date}
         style={style}
         className={clsx(
@@ -238,10 +237,10 @@ class DayColumn extends React.Component {
           continuesAfter={continuesAfter}
           accessors={accessors}
           selected={isSelected(event, selected)}
-          onClick={e => this._select(event, e)}
-          onDoubleClick={e => this._doubleClick(event, e)}
+          onClick={(e) => this._select(event, e)}
+          onDoubleClick={(e) => this._doubleClick(event, e)}
           isBackgroundEvent={isBackgroundEvent}
-          onKeyPress={e => this._keyPress(event, e)}
+          onKeyPress={(e) => this._keyPress(event, e)}
           resizable={resizable}
         />
       )
@@ -249,13 +248,13 @@ class DayColumn extends React.Component {
   }
 
   _selectable = () => {
-    let node = findDOMNode(this)
+    let node = this.containerRef.current
     const { longPressThreshold, localizer } = this.props
-    let selector = (this._selector = new Selection(() => findDOMNode(this), {
+    let selector = (this._selector = new Selection(() => node, {
       longPressThreshold: longPressThreshold,
     }))
 
-    let maybeSelect = box => {
+    let maybeSelect = (box) => {
       let onSelecting = this.props.onSelecting
       let current = this.state || {}
       let state = selectionState(box)
@@ -279,7 +278,7 @@ class DayColumn extends React.Component {
       }
     }
 
-    let selectionState = point => {
+    let selectionState = (point) => {
       let currentSlot = this.slotMetrics.closestSlotFromPoint(
         point,
         getBoundsForNode(node)
@@ -311,7 +310,7 @@ class DayColumn extends React.Component {
     }
 
     let selectorClicksHandler = (box, actionType) => {
-      if (!isEvent(findDOMNode(this), box)) {
+      if (!isEvent(this.containerRef.current, box)) {
         const { startDate, endDate } = selectionState(box)
         this._selectSlot({
           startDate,
@@ -326,17 +325,19 @@ class DayColumn extends React.Component {
     selector.on('selecting', maybeSelect)
     selector.on('selectStart', maybeSelect)
 
-    selector.on('beforeSelect', box => {
+    selector.on('beforeSelect', (box) => {
       if (this.props.selectable !== 'ignoreEvents') return
 
-      return !isEvent(findDOMNode(this), box)
+      return !isEvent(this.containerRef.current, box)
     })
 
-    selector.on('click', box => selectorClicksHandler(box, 'click'))
+    selector.on('click', (box) => selectorClicksHandler(box, 'click'))
 
-    selector.on('doubleClick', box => selectorClicksHandler(box, 'doubleClick'))
+    selector.on('doubleClick', (box) =>
+      selectorClicksHandler(box, 'doubleClick')
+    )
 
-    selector.on('select', bounds => {
+    selector.on('select', (bounds) => {
       if (this.state.selecting) {
         this._selectSlot({ ...this.state, action: 'select', bounds })
         this.setState({ selecting: false })

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import { DnDContext } from './DnDContext'
+import NoopWrapper from '../../NoopWrapper'
 
 import Selection, {
   getBoundsForNode,
@@ -8,7 +9,6 @@ import Selection, {
 } from '../../Selection'
 import TimeGridEvent from '../../TimeGridEvent'
 import { dragAccessors, eventTimes, pointInColumn } from './common'
-import NoopWrapper from '../../NoopWrapper'
 
 class EventContainerWrapper extends React.Component {
   static propTypes = {
@@ -133,7 +133,7 @@ class EventContainerWrapper extends React.Component {
       wrapper.closest('.rbc-time-view')
     ))
 
-    selector.on('beforeSelect', point => {
+    selector.on('beforeSelect', (point) => {
       const { dragAndDropAction } = this.context.draggable
 
       if (!dragAndDropAction.action) return false
@@ -153,7 +153,7 @@ class EventContainerWrapper extends React.Component {
       this.eventOffsetTop = point.y - getBoundsForNode(eventNode).top
     })
 
-    selector.on('selecting', box => {
+    selector.on('selecting', (box) => {
       const bounds = getBoundsForNode(node)
       const { dragAndDropAction } = this.context.draggable
 
@@ -161,14 +161,14 @@ class EventContainerWrapper extends React.Component {
       if (dragAndDropAction.action === 'resize') this.handleResize(box, bounds)
     })
 
-    selector.on('dropFromOutside', point => {
+    selector.on('dropFromOutside', (point) => {
       if (!this.context.draggable.onDropFromOutside) return
       const bounds = getBoundsForNode(node)
       if (!pointInColumn(bounds, point)) return
       this.handleDropFromOutside(point, bounds)
     })
 
-    selector.on('dragOver', point => {
+    selector.on('dragOver', (point) => {
       if (!this.context.draggable.dragFromOutsideItem) return
       const bounds = getBoundsForNode(node)
       this.handleDropFromOutside(point, bounds)
@@ -179,18 +179,23 @@ class EventContainerWrapper extends React.Component {
       this.context.draggable.onStart()
     })
 
-    selector.on('select', point => {
+    selector.on('select', (point) => {
       const bounds = getBoundsForNode(node)
       isBeingDragged = false
-      if (!this.state.event || !pointInColumn(bounds, point)) return
-      this.handleInteractionEnd()
+      const { dragAndDropAction } = this.context.draggable
+      if (dragAndDropAction.action === 'resize') {
+        this.handleInteractionEnd()
+      } else if (!this.state.event || !pointInColumn(bounds, point)) {
+        return
+      } else {
+        this.handleInteractionEnd()
+      }
     })
 
     selector.on('click', () => {
       if (isBeingDragged) this.reset()
       this.context.draggable.onEnd(null)
     })
-
     selector.on('reset', () => {
       this.reset()
       this.context.draggable.onEnd(null)
@@ -200,7 +205,6 @@ class EventContainerWrapper extends React.Component {
   handleInteractionEnd = () => {
     const { resource } = this.props
     const { event } = this.state
-
     this.reset()
 
     this.context.draggable.onEnd({
@@ -217,14 +221,8 @@ class EventContainerWrapper extends React.Component {
   }
 
   renderContent() {
-    const {
-      children,
-      accessors,
-      components,
-      getters,
-      slotMetrics,
-      localizer,
-    } = this.props
+    const { children, accessors, components, getters, slotMetrics, localizer } =
+      this.props
 
     let { event, top, height } = this.state
     if (!event) return children
