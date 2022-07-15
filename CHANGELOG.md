@@ -1,3 +1,33 @@
+## [1.4.2](https://github.com/jquense/react-big-calendar/compare/v1.4.1...v1.4.2) (2022-07-15)
+
+### Bug Fixes
+
+- do not autoscroll on event selection ([#2234](https://github.com/jquense/react-big-calendar/issues/2234)) ([b85b1ff](https://github.com/jquense/react-big-calendar/commit/b85b1ff884862c8116e0e571e0715499f4e7d5f4)), closes [#2233](https://github.com/jquense/react-big-calendar/issues/2233)
+
+## [1.4.1](https://github.com/jquense/react-big-calendar/compare/v1.4.0...v1.4.1) (2022-07-15)
+
+### Bug Fixes
+
+- **dnd:** dont use classname ([#2232](https://github.com/jquense/react-big-calendar/issues/2232)) ([2332f12](https://github.com/jquense/react-big-calendar/commit/2332f121260bc772f4a709f6334bd9bb96c05e69))
+
+# [1.4.0](https://github.com/jquense/react-big-calendar/compare/v1.3.3...v1.4.0) (2022-07-12)
+
+### Features
+
+- allow using custom event wrapper component while dragging ([#2228](https://github.com/jquense/react-big-calendar/issues/2228)) ([afa8824](https://github.com/jquense/react-big-calendar/commit/afa882426b893e300da25202b5c56b23d591e9f1)), closes [#1864](https://github.com/jquense/react-big-calendar/issues/1864)
+
+## [1.3.3](https://github.com/jquense/react-big-calendar/compare/v1.3.2...v1.3.3) (2022-07-12)
+
+### Bug Fixes
+
+- revert ([#2227](https://github.com/jquense/react-big-calendar/issues/2227)) ([b81fa14](https://github.com/jquense/react-big-calendar/commit/b81fa146a97b83cd0bff063eb5004f1583eb365c))
+
+## [1.3.2](https://github.com/jquense/react-big-calendar/compare/v1.3.1...v1.3.2) (2022-07-12)
+
+### Bug Fixes
+
+- temp fix for DayColumn render ([#2224](https://github.com/jquense/react-big-calendar/issues/2224)) ([48b23a2](https://github.com/jquense/react-big-calendar/commit/48b23a26edb2383abee9978a2b99eb4520a97f12)), closes [#2222](https://github.com/jquense/react-big-calendar/issues/2222)
+
 ## [1.3.1](https://github.com/jquense/react-big-calendar/compare/v1.3.0...v1.3.1) (2022-07-12)
 
 ### Bug Fixes
