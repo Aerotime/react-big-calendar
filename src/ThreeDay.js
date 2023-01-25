@@ -1,0 +1,71 @@
+import PropTypes from 'prop-types'
+import React from 'react'
+
+import { navigate } from './utils/constants'
+import TimeGrid from './TimeGrid'
+
+class ThreeDay extends React.Component {
+  render() {
+    /**
+     * This allows us to default min, max, and scrollToTime
+     * using our localizer. This is necessary until such time
+     * as TimeGrid is converted to a functional component.
+     */
+    let {
+      date,
+      localizer,
+      min = localizer.startOf(new Date(), 'day'),
+      max = localizer.endOf(new Date(), 'day'),
+      scrollToTime = localizer.startOf(new Date(), 'day'),
+      enableAutoScroll = true,
+      ...props
+    } = this.props
+    let range = ThreeDay.range(date, { localizer: localizer })
+
+    return (
+      <TimeGrid
+        {...props}
+        range={range}
+        eventOffset={10}
+        localizer={localizer}
+        min={min}
+        max={max}
+        scrollToTime={scrollToTime}
+        enableAutoScroll={enableAutoScroll}
+      />
+    )
+  }
+}
+
+ThreeDay.propTypes = {
+  date: PropTypes.instanceOf(Date).isRequired,
+  localizer: PropTypes.any,
+  min: PropTypes.instanceOf(Date),
+  max: PropTypes.instanceOf(Date),
+  scrollToTime: PropTypes.instanceOf(Date),
+  enableAutoScroll: PropTypes.bool,
+}
+
+ThreeDay.range = (date, { localizer }) => {
+  let start = localizer.startOf(date, 'day')
+  let end = localizer.endOf(localizer.add(start, 2, 'day'))
+  return localizer.range(start, end, 'day')
+}
+
+ThreeDay.navigate = (date, action, { localizer }) => {
+  switch (action) {
+    case navigate.PREVIOUS:
+      return localizer.add(date, -1, 'day')
+
+    case navigate.NEXT:
+      return localizer.add(date, 1, 'day')
+
+    default:
+      return date
+  }
+}
+
+ThreeDay.title = (date, { localizer }) =>
+  localizer.format(date, 'dayHeaderFormat')
+
+export default ThreeDay
